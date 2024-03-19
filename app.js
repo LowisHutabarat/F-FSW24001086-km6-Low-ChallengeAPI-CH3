@@ -1,6 +1,5 @@
 const express = require('express');
 
-
 const app = express();
 
 const carRouter = require('./routes/carRouter')
@@ -13,11 +12,6 @@ app.use((req, res, next) => {
     next();
 });
 
-
-// app.get('/', defaultRouter );
-// banyak data
-
 app.use('/api/v1/',carRouter);
-
 
 module.exports = app;

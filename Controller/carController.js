@@ -5,6 +5,7 @@ const fs = require("fs");
 const cars = JSON.parse(fs.readFileSync(`${__dirname}/../Data/cars.json`));
 
 const pingServer = (req, res, next) => {
+    console.log("Ping success");
     res.json({ message: "ping successfully" });
 };
 
@@ -40,67 +41,48 @@ const getCarsById = (req, res, next) => {
     });
 };
 
-const updateCarsData =  (req, res, next) => {
-    const id = req.params.id;
-    const car = cars.find(car => car.id === id);
-
-    if (!car) {
-        return res.status(404).json({
-            status: "failed",
-            message: `Mobil dengan ID : ${id} tidak ditemukan`,
+const updateCarsData = (req,res) =>{
+    const id = req.params.id
+    const car = cars.find((car) => car.id === id)
+    const carIndex = cars.findIndex((car) => car.id === id)
+    if(!car){
+        return res.status(404).JSON({
+            status: "fail",
+            message: `Mobil dengan ID : ${id} tidak ada`
         });
     }
-
-    res.status(200).json({
-        status: "success,i gotchu!",
-        Data: {
-            car,
-        },
-    });
-};
-
-
-
-const deleteCarsData = (req, res) => {
-    const id = req.params.id;
-
-    console.log("Deleting Mobil with ID:", id);
-
-    const carIndex = cars.findIndex(car => car.id === id);
-
-    if (carIndex === -1) {
-        console.log("Car not found with ID:", id);
-        return res.status(404).json({
-            status: "success",
-            message: `Mobil dengan ID : ${id} tidak ditemukan`,
-        });
-    }
-
-
-    console.log("Cars array before deletion:", cars);
-
-
-    cars.splice(carIndex, 1);
-
-    console.log("cars array after deletion:", cars);
-
-    // Writing updated data back to file
-    fs.writeFile(`${__dirname}/Data/cars.json`, JSON.stringify(cars), (err) => {
-        if (err) {
-            console.error("Error writing file:", err);
-            return res.status(500).json({
-                status: "error",
-                message: "Fail to save data",
-            });
-        }
-
+    cars[carIndex] = {...cars[carIndex], ...req.body}
+    fs.writeFile(`${__dirname}/Data/cars.json`, JSON.stringify(cars), err => {
         res.status(200).json({
             status: "success",
-            message: "Success to delete data",
-            data: null
+            message: "Kelazz",
+            data:{
+                car: car[carIndex],
+                car,
+            }
         });
     });
 };
+
+
+const deleteCarsData = (req,res) =>{
+    const id = req.params.id
+    const car = cars.find((car) => car.id === id)
+    const carIndex = cars.findIndex((car) => car.id === id)
+    if(!car){
+        return res.status(404).json({
+            status: "fail",
+            message: `Mobil dengan ID : ${id} tidak ada`
+        });
+    }
+    cars.splice(carIndex, 1);
+    fs.writeFile(`${__dirname}/Data/cars.json`, JSON.stringify(cars), err => {
+        res.status(200).json({
+            status: "success",
+            message: "The data has gone"
+        });
+    });
+}
 
 const newCarsData = (req, res) => {
     const newCars = req.body;
